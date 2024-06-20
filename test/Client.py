@@ -2,9 +2,10 @@ import socket
 import json
 
 class Client:
-    def __init__(self, host='localhost', port=9999):
+    def __init__(self, host='localhost', port=9998):
         self.host = host
         self.port = port
+        self.role = None
 
     def connect(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,61 +15,62 @@ class Client:
     def send_command(self, command, data):
         message = json.dumps({'command': command, 'data': data})
         self.sock.sendall(message.encode())
-        response = self.sock.recv(4096).decode()
+        response = self.sock.recv(1024).decode()
         return json.loads(response)
 
     def authenticate(self, username, password):
         response = self.send_command('authenticate', {'username': username, 'password': password})
         if response['status'] == 'success':
-            print(f"Authenticated successfully as {response['role']}")
+            self.role = response['role']
+            print(f"Authenticated successfully as {self.role}")
             return True
         else:
             print("Authentication failed:", response['message'])
             return False
 
-    def add_user(self, username, password, role):
-        return self.send_command('add_user', {'username': username, 'password': password, 'role': role})
-
-    def add_dish(self, dish_name, price):
-        return self.send_command('add_dish', {'dish_name': dish_name, 'price': price})
-
-    def update_dish(self, dish_id, new_price):
-        return self.send_command('update_dish', {'dish_id': dish_id, 'new_price': new_price})
-
-    def delete_dish(self, dish_id):
-        return self.send_command('delete_dish', {'dish_id': dish_id})
-
-    def send_notification(self, message):
-        return self.send_command('send_notification', {'message': message})
-
-    def get_feedback(self):
-        return self.send_command('get_feedback', {})
-
-    def rollout_menu(self, menu_items):
-        return self.send_command('rollout_menu', {'menu_items': menu_items})
-
-    def give_feedback(self, feedback):
-        return self.send_command('give_feedback', {'feedback': feedback})
-
-    def see_notification(self):
-        return self.send_command('see_notification', {})
-
-    def handle_employee_commands(self):
+    def handle_admin_commands(self):
         while True:
-            command = input("Enter command: ")
+            print("Admin commands: add_user, add_dish, update_dish, delete_dish, exit")
+            command = input("Enter command: ").strip().lower()
+
             if command == 'exit':
                 break
-            data = input("Enter data: ")
-            response = self.send_command(command, {'data': data})
-            print("Server response:", response)
+
+            if command == 'add_dish':
+                try:
+                    item_name = input("Enter item name: ")
+                    meal_type = input("Enter meal type: ")
+                    availability = input("Enter availability (True/False): ")
+
+                    data = {'item_name': item_name, 'meal_type': meal_type, 'availability': availability}
+
+                    response = self.send_command('add_dish',data )
+
+                    if response['status'] == 'success':
+                        print("Dish added successfully")
+                    else:
+                        print(response['status'])
+
+                except json.JSONDecodeError:
+                    print("Invalid data format")
+                    continue
+                except Exception as e:
+                    print(f"Error: {e}")
+
+            else:
+                print("Invalid command")
 
     def run(self):
         self.connect()
         username = input("Username: ")
         password = input("Password: ")
         if self.authenticate(username, password):
-            self.handle_employee_commands()
-        self.sock.close()
+            if self.role == 'admin':
+                self.handle_admin_commands()
+            # elif self.role == 'chef':
+            #     self.handle_chef_commands()
+            # elif self.role == 'employee':
+            #     self.handle_employee_commands()
 
 if __name__ == '__main__':
     client = Client()

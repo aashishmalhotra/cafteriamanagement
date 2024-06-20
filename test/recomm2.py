@@ -17,7 +17,7 @@ def fetch_feedback_data():
         cursor = conn.cursor(dictionary=True)
 
         # Fetch all records from feedback table
-        cursor.execute("SELECT food_id, rating, quantity, quality, vfm, comments FROM feedback2")
+        cursor.execute("SELECT food_id, rating, quantity, quality, vfm, comments FROM feedback")
         feedback_data = cursor.fetchall()
 
         conn.close()
@@ -39,8 +39,8 @@ def preprocess_comments(comment):
 # Function to train Naive Bayes model for recommendation with Laplace smoothing
 def train_naive_bayes(feedback_data, alpha=1):
     num_items = len(feedback_data)
-    num_features = 4  # rating, quantity, quality, vfm
-    num_classes = 2  # Recommended (1) or not recommended (0)
+    num_features = 4  # (rating, quantity, quality, vfm)
+    num_classes = 2  # (recommended or not recommended)
 
     # Initialize counts for likelihoods
     class_counts = [0] * num_classes
@@ -92,7 +92,7 @@ def predict_naive_bayes(item, prior, likelihoods):
         posterior = math.log(prior[c])
         for f in range(num_features):
             posterior += math.log(likelihoods[c][f]) if item[f] > 0 else 0
-        posteriors[c] = posterior
+            posteriors[c] = posterior
 
     # Predict the class with maximum posterior probability
     return posteriors.index(max(posteriors))

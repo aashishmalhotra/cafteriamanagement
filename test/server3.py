@@ -4,7 +4,7 @@ import json
 import mysql.connector
 
 class Server:
-    def __init__(self, host='127.0.0.1', port=9998):
+    def __init__(self, host='127.0.0.1', port=8889):
         self.host = host
         self.port = port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,7 +24,7 @@ class Server:
     def handle_client(self, client_socket):
         try:
             while True:
-                message = client_socket.recv(1024).decode()
+                message = client_socket.recv(4096).decode()
                 if not message:
                     break
                 data = json.loads(message)
@@ -40,7 +40,6 @@ class Server:
         if command == 'authenticate':
             return self.authenticate(data['username'], data['password'])
         elif command == 'add_dish':
-            print("inside server add dish")
             return self.add_dish(data)
         elif command == 'update_dish':
             return self.update_dish(data)
@@ -60,22 +59,17 @@ class Server:
 
     def add_dish(self, data):
         try:
-            print("Inside server")
-            print(data)
-
             query = "INSERT INTO food (item_name, meal_type, availability) VALUES (%s, %s, %s)"
             self.db_cursor.execute(query, (data['item_name'], data['meal_type'], data['availability']))
             self.db_connection.commit()
-
-            return {'status': 'success', 'message': 'Food added successfully'}
-
+            return {'status': 'success', 'message': 'Dish added successfully'}
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
     def update_dish(self, data):
         try:
-            query = "UPDATE dishes SET name = %s, price = %s, description = %s WHERE id = %s"
-            self.db_cursor.execute(query, (data['name'], data['price'], data['description'], data['id']))
+            query = "UPDATE food SET item_name = %s, meal_type = %s, availability = %s WHERE id = %s"
+            self.db_cursor.execute(query, (data['item_name'], data['meal_type'], data['availability'], data['id']))
             self.db_connection.commit()
             return {'status': 'success', 'message': 'Dish updated successfully'}
         except Exception as e:
@@ -83,7 +77,7 @@ class Server:
 
     def delete_dish(self, data):
         try:
-            query = "DELETE FROM dishes WHERE id = %s"
+            query = "DELETE FROM food WHERE id = %s"
             self.db_cursor.execute(query, (data['id'],))
             self.db_connection.commit()
             return {'status': 'success', 'message': 'Dish deleted successfully'}
@@ -96,7 +90,6 @@ class Server:
             print(f"Accepted connection from {addr}")
             client_handler_thread = threading.Thread(target=self.handle_client, args=(client_socket,))
             client_handler_thread.start()
-
 
 if __name__ == '__main__':
     server = Server()

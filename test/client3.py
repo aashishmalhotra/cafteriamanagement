@@ -32,12 +32,11 @@ class Client:
         command_functions = {
             'add_dish': self.add_dish,
             'update_dish': self.update_dish,
-            'delete_dish': self.delete_dish,
-            'view_dishes': self.view_dishes
+            'delete_dish': self.delete_dish
         }
 
         while True:
-            print("Admin commands: view_dishes, add_dish, update_dish, delete_dish, exit")
+            print("Admin commands: add_user, add_dish, update_dish, delete_dish, exit")
             command = input("Enter command: ").strip().lower()
 
             if command == 'exit':
@@ -64,12 +63,12 @@ class Client:
             print(response['message'])
 
     def update_dish(self):
-        item_id = input("Enter item ID: ").strip()
+        dish_id = input("Enter dish ID: ").strip()
         item_name = input("Enter new item name: ").strip()
         meal_type = input("Enter new meal type: ").strip()
         availability = input("Enter new availability (True/False): ").strip().lower() == 'true'
 
-        data = {'item_id': item_id, 'item_name': item_name, 'meal_type': meal_type, 'availability': availability}
+        data = {'id': dish_id, 'item_name': item_name, 'meal_type': meal_type, 'availability': availability}
         response = self.send_command('update_dish', data)
 
         if response['status'] == 'success':
@@ -78,23 +77,13 @@ class Client:
             print(response['message'])
 
     def delete_dish(self):
-        item_id = input("Enter item ID: ").strip()
+        dish_id = input("Enter dish ID: ").strip()
 
-        data = {'item_id': item_id}
+        data = {'id': dish_id}
         response = self.send_command('delete_dish', data)
 
         if response['status'] == 'success':
             print("Dish deleted successfully")
-        else:
-            print(response['message'])
-
-    def view_dishes(self):
-        response = self.send_command('view_dishes', {})
-        if response['status'] == 'success':
-            dishes = response['dishes']
-            print("Dishes in the system:")
-            for dish in dishes:
-                print(f"ID: {dish['item_id']}, Name: {dish['item_name']}, Meal Type: {dish['meal_type']}, Availability: {dish['availability']}")
         else:
             print(response['message'])
 
