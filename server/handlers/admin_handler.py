@@ -4,7 +4,7 @@ class AdminHandler:
 
     def add_dish(self, data):
         try:
-            query = "INSERT INTO food (item_name, meal_type, availability) VALUES (%s, %s, %s)"
+            query = "INSERT INTO food (item_name, meal_type,availability) VALUES (%s, %s, %s)"
             self.db.execute(query, (data['item_name'], data['meal_type'], data['availability']))
             return {'status': 'success', 'message': 'Item added successfully'}
         except Exception as e:
@@ -13,7 +13,7 @@ class AdminHandler:
     def update_dish(self, data):
         try:
             query = "UPDATE food SET item_name = %s, meal_type = %s, availability = %s WHERE item_id = %s"
-            self.db.execute(query, (data['item_name'], data['meal_type'], data['availability'], data['item_id']))
+            self.db.execute(query, (data['item_name'], data['meal_type'] , data['availability'], data['item_id']))
             return {'status': 'success', 'message': 'Item updated successfully'}
         except Exception as e:
             return {'status': 'error', 'message': str(e)}

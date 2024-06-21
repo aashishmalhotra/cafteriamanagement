@@ -30,7 +30,7 @@ class ChefHandler:
                 FROM vote v
                 JOIN food f ON v.item_id = f.item_id
                 WHERE v.is_selected = 0
-                GROUP BY f.item_id, f.item_name
+                GROUP BY f.item_id
                 ORDER BY total_votes DESC
             """
             self.db_cursor.execute(query)

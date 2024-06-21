@@ -93,6 +93,28 @@ class Client:
             else:
                 print("Invalid command")
 
+    # def handle_employee_commands(self):
+    #     while True:
+    #         print("Employee Commands: view_menu,vote_dish,exit")
+    #         command = input("Enter command: ").strip().lower()
+    #
+    #         if command == 'exit':
+    #             break
+    #
+    #         if command == 'view_menu':
+    #             response = self.send_command('view_menu', {})
+    #             print("Current menu:", response)
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #
+    #         elif command == 'vote_dish':
+    #             response = self.send_command(command:'vote_dish', data:{})
+    #             print("Give dish id to reviewed:",response)
+    #
+    #         else:
+    #             print("Invalid Command")
+
+
     def run(self):
         self.connect()
         username = input("Username: ")
