@@ -1,7 +1,8 @@
 import socket
 import threading
 import json
-import mysql.connector
+from databases.database import Database
+from handlers.admin_handler import AdminHandler
 
 class Server:
     def __init__(self, host='127.0.0.1', port=8889):
@@ -12,14 +13,8 @@ class Server:
         self.server_socket.listen(5)
         print(f"Server listening on {self.host}:{self.port}")
 
-        # Connect to MySQL databases
-        self.db_connection = mysql.connector.connect(
-            host="127.0.0.1",
-            user="root",
-            password="Admin@!2345",
-            database="fd"
-        )
-        self.db_cursor = self.db_connection.cursor()
+        self.db = Database()
+        self.admin_handler = AdminHandler(self.db)
 
     def handle_client(self, client_socket):
         try:
@@ -40,49 +35,23 @@ class Server:
         if command == 'authenticate':
             return self.authenticate(data['username'], data['password'])
         elif command == 'add_dish':
-            return self.add_dish(data)
+            return self.admin_handler.add_dish(data)
         elif command == 'update_dish':
-            return self.update_dish(data)
+            return self.admin_handler.update_dish(data)
         elif command == 'delete_dish':
-            return self.delete_dish(data)
+            return self.admin_handler.delete_dish(data)
+        elif command == 'view_dishes':
+            return self.admin_handler.view_dishes()
         else:
             return {'status': 'error', 'message': 'Unknown command'}
 
     def authenticate(self, username, password):
         query = "SELECT role FROM users WHERE username = %s AND password = %s"
-        self.db_cursor.execute(query, (username, password))
-        result = self.db_cursor.fetchone()
+        result = self.db.fetchone(query, (username, password))
         if result:
             return {'status': 'success', 'role': result[0]}
         else:
             return {'status': 'error', 'message': 'Invalid credentials'}
-
-    def add_dish(self, data):
-        try:
-            query = "INSERT INTO food (item_name, meal_type, availability) VALUES (%s, %s, %s)"
-            self.db_cursor.execute(query, (data['item_name'], data['meal_type'], data['availability']))
-            self.db_connection.commit()
-            return {'status': 'success', 'message': 'Dish added successfully'}
-        except Exception as e:
-            return {'status': 'error', 'message': str(e)}
-
-    def update_dish(self, data):
-        try:
-            query = "UPDATE food SET item_name = %s, meal_type = %s, availability = %s WHERE id = %s"
-            self.db_cursor.execute(query, (data['item_name'], data['meal_type'], data['availability'], data['id']))
-            self.db_connection.commit()
-            return {'status': 'success', 'message': 'Dish updated successfully'}
-        except Exception as e:
-            return {'status': 'error', 'message': str(e)}
-
-    def delete_dish(self, data):
-        try:
-            query = "DELETE FROM food WHERE id = %s"
-            self.db_cursor.execute(query, (data['id'],))
-            self.db_connection.commit()
-            return {'status': 'success', 'message': 'Dish deleted successfully'}
-        except Exception as e:
-            return {'status': 'error', 'message': str(e)}
 
     def run(self):
         while True:

@@ -12,7 +12,7 @@ class Server:
         self.server_socket.listen(5)
         print(f"Server listening on {self.host}:{self.port}")
 
-        # Connect to MySQL database
+        # Connect to MySQL databases
         self.db_connection = mysql.connector.connect(
             host="127.0.0.1",
             user="root",

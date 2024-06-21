@@ -1,16 +1,16 @@
 import mysql.connector
 import math
 
-# MySQL database connection configuration
+# MySQL databases connection configuration
 db_config = {
     'host': '127.0.0.1',
     'user': 'root',
     'password': 'Admin@!2345',
-    'database': 'fd'
+    'databases': 'fd'
 }
 
 
-# Function to connect to MySQL database and fetch feedback data
+# Function to connect to MySQL databases and fetch feedback data
 def fetch_feedback_data():
     try:
         conn = mysql.connector.connect(**db_config)
