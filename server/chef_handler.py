@@ -1,3 +1,4 @@
+from recomm2 import RecommendationSystem
 class ChefHandler:
     def __init__(self, db_connection):
         self.db_obj = db_connection
@@ -13,15 +14,18 @@ class ChefHandler:
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
-    def view_recommendation(self):
+    def view_recommendation(self, num_items):
         try:
-            query = "SELECT item_id, item_name, meal_type, availability FROM food ORDER BY RAND() LIMIT 10"
-            self.db_cursor.execute(query)
-            dishes = self.db_cursor.fetchall()
-            dishes_list = [{'item_id': dish[0], 'item_name': dish[1], 'meal_type': dish[2], 'availability': dish[3]} for dish in dishes]
-            return {'status': 'success', 'dishes': dishes_list}
+            print("inside chef handler and View_recomm method")
+            recommender = RecommendationSystem(self.db_obj)
+            recommendations = recommender.get_recommendations(num_items)
+            # print(recommendations)
+            # recommendations = recommendations[:int(num_items)]
+            return {'status': 'success', 'dishes': recommendations}
+
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
+
 
     def voting_results(self):
         try:

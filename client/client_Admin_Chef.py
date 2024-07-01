@@ -16,7 +16,9 @@ class Client:
         message = json.dumps({'command': command, 'data': data})
         self.sock.sendall(message.encode())
         response = self.sock.recv(4096).decode()
+        print('inside client send_command')
         return json.loads(response)
+
 
     def authenticate(self, username, password):
         response = self.send_command('authenticate', {'username': username, 'password': password})
@@ -36,7 +38,7 @@ class Client:
             if command == 'exit':
                 break
 
-            if command in ['add_dish', 'update_dish', 'delete_dish']:
+            elif command in ['add_dish', 'update_dish', 'delete_dish']:
                 item_name = input("Enter item name: ")
                 meal_type = input("Enter meal type: ")
                 availability = input("Enter availability (True/False): ").strip().lower() == 'true'
@@ -66,15 +68,17 @@ class Client:
             if command == 'exit':
                 break
 
-            if command == 'view_menu':
+            elif command == 'view_menu':
                 response = self.send_command('view_menu', {})
                 print("Current menu:", response)
                 for dish in response.get('dishes', []):
                     print(dish)
 
             elif command == 'view_recommendation':
-                response = self.send_command('view_recommendation', {})
-                print("Recommended dishes:", response)
+                num_items = int(input("Enter number of items to recommend: ").strip())
+                response = self.send_command('view_recommendation', {'num_items': num_items})
+                print("Recommended dishes:")
+                print("In response",response)
                 for dish in response.get('dishes', []):
                     print(dish)
 
@@ -93,27 +97,46 @@ class Client:
             else:
                 print("Invalid command")
 
-    # def handle_employee_commands(self):
-    #     while True:
-    #         print("Employee Commands: view_menu,vote_dish,exit")
-    #         command = input("Enter command: ").strip().lower()
-    #
-    #         if command == 'exit':
-    #             break
-    #
-    #         if command == 'view_menu':
-    #             response = self.send_command('view_menu', {})
-    #             print("Current menu:", response)
-    #             for dish in response.get('dishes', []):
-    #                 print(dish)
-    #
-    #         elif command == 'vote_dish':
-    #             response = self.send_command(command:'vote_dish', data:{})
-    #             print("Give dish id to reviewed:",response)
-    #
-    #         else:
-    #             print("Invalid Command")
+    def handle_employee_commands(self):
+        while True:
+            print("Employee commands: vote_item, provide_feedback, next_day_menu, exit")
+            command = input("Enter command: ").strip().lower()
 
+            if command == 'exit':
+                break
+
+            elif command == 'view_menu':
+                response = self.send_command('view_menu', {})
+                print("Current menu:")
+                for dish in response.get('dishes', []):
+                    print(dish)
+
+            elif command == 'provide_feedback':
+                item_name = input("Enter item name: ")
+                qty = int(input("Enter quantity: "))
+                quality = int(input("Enter quality: "))
+                vfm = int(input("Enter value for money (vfm): "))
+                comments = input("Enter comments: ")
+
+                data = {'item_name': item_name, 'qty': qty, 'quality': quality, 'vfm': vfm, 'comments': comments}
+                response = self.send_command('provide_feedback', data)
+                print("Server response:", response)
+
+            elif command == 'vote_item':
+                item_id = int(input("Enter item ID to vote: "))
+                vote = input("Enter your vote: ")
+                data = {'item_id': item_id, 'vote': vote}
+                response = self.send_command(command, data)
+                print("Server response:", response)
+
+            elif command == 'next_day_menu':
+                response = self.send_command('next_day_menu', {})
+                print("Next day's menu:")
+                for dish in response.get('dishes', []):
+                    print(dish)
+
+            else:
+                print("Invalid command")
 
     def run(self):
         self.connect()
@@ -124,9 +147,10 @@ class Client:
                 self.handle_admin_commands()
             elif self.role == 'chef':
                 self.handle_chef_commands()
-            # elif self.role == 'employee':
-            #     self.handle_employee_commands()
+            elif self.role == 'employee':
+                self.handle_employee_commands()
         self.sock.close()
+
 
 if __name__ == '__main__':
     client = Client()
