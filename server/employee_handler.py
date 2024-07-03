@@ -91,3 +91,59 @@ class EmployeeHandler:
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
+
+def show_pending_feedback(self):
+    try:
+
+        query = """
+                SELECT df.item_id, df.question_id, df.question, f.item_name
+                FROM detailed_feedback df
+                JOIN food f ON df.item_id = f.item_id
+                WHERE df.answer IS NULL
+                """
+        self.db.db_cursor.execute(query)
+        questions = self.db.db_cursor.fetchall()
+
+        if not questions:
+            return {'status': 'success', 'message': 'No pending feedback questions.'}
+
+        pending_feedback = [
+            {
+                'item_id': question[0],
+                'question_id': question[1],
+                'question': question[2],
+                'item_name': question[3]
+            }
+            for question in questions
+        ]
+
+        return {'status': 'success', 'questions': pending_feedback}
+
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+
+
+def send_detailed_feedback(self, data):
+    try:
+        item_id = data.get('item_id')
+        feedback = data.get('feedback')  # feedback is a list of dictionaries with question_id and answer
+
+        for fb in feedback:
+            question_id = fb.get('question_id')
+            answer = fb.get('answer')
+
+            query = """
+                    UPDATE detailed_feedback
+                    SET answer = %s
+                    WHERE item_id = %s AND question_id = %s
+                    """
+            self.db.db_cursor.execute(query, (answer, item_id, question_id))
+
+        self.db.db_conn.commit()
+
+        return {'status': 'success', 'message': 'Feedback submitted successfully'}
+
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+
+
