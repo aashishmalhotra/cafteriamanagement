@@ -6,6 +6,7 @@ class Client:
         self.host = host
         self.port = port
         self.role = None
+        self.user_id = None
 
     def connect(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,6 +14,8 @@ class Client:
         print("Connected to server")
 
     def send_command(self, command, data):
+        if self.user_id:
+            data['user_id'] = self.user_id
         message = json.dumps({'command': command, 'data': data})
         self.sock.sendall(message.encode())
         response = self.sock.recv(4096).decode()
@@ -32,7 +35,7 @@ class Client:
 
     def handle_admin_commands(self):
         while True:
-            print("Admin commands: add_dish, update_dish, delete_dish, view_dishes, exit")
+            print("Admin commands: add_dish, update_dish, delete_dish, view_dishes, add_notification, exit")
             command = input("Enter command: ").strip().lower()
 
             if command == 'exit':
@@ -57,12 +60,17 @@ class Client:
                 for dish in response.get('dishes', []):
                     print(dish)
 
+            elif command == 'add_notification':
+                data = str(input("Enter message to be sent as notification: "))
+                response = self.send_command('add_notification', data)
+                print("Server Response", response)
+
             else:
                 print("Invalid command")
 
     def handle_chef_commands(self):
         while True:
-            print("Chef commands: view_menu, view_recommendation, voting_results, choose_final_menu, exit")
+            print("Chef commands: view_menu, view_recommendation,add_notification, voting_results, choose_final_menu, exit")
             command = input("Enter command: ").strip().lower()
 
             if command == 'exit':
@@ -82,6 +90,11 @@ class Client:
                 for dish in response.get('dishes', []):
                     print(dish)
 
+            elif command == 'add_notification':
+                data = str(input("Enter message to be sent as notification: "))
+                response = self.send_command('add_notification',data)
+                print("Server Response",response)
+
             elif command == 'voting_results':
                 response = self.send_command('voting_results', {})
                 print("Voting results:", response)
@@ -99,7 +112,7 @@ class Client:
 
     def handle_employee_commands(self):
         while True:
-            print("Employee commands: vote_item, provide_feedback, next_day_menu, exit")
+            print("Employee commands: view_menu, vote_item, provide_feedback, next_day_menu,show_notification, exit")
             command = input("Enter command: ").strip().lower()
 
             if command == 'exit':
@@ -135,8 +148,16 @@ class Client:
                 for dish in response.get('dishes', []):
                     print(dish)
 
+            elif command == 'show_notification':
+                user_name = str(input("Enter your username: "))
+                data = {'user_name': user_name}
+                response = self.send_command('show_notification',data)
+                print("Today's Notification:")
+                for notification in response.get('messages_list',[]):
+                    print(notification)
+
             else:
-                print("Invalid command")
+                print("Command not found in client")
 
     def run(self):
         self.connect()

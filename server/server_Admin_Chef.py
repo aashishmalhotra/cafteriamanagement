@@ -51,12 +51,16 @@ class Server:
             return self.admin_handler.delete_dish(data)
         elif command == 'view_dishes':
             return self.admin_handler.view_dishes()
+        elif command == 'add_notification':
+            return self.admin_handler.add_notification(data)
         elif command == 'view_menu':
             return self.chef_handler.view_menu()
         elif command == 'choose_final_menu':
             return self.chef_handler.choose_final_menu(data)
         elif command == 'view_recommendation':
             return self.chef_handler.view_recommendation(data)
+        elif command == 'add_notification':
+            return self.chef_handler.add_notification(data)
         elif command == 'voting_results':
             return self.chef_handler.voting_results()
         elif command == 'view_menu':
@@ -67,6 +71,8 @@ class Server:
             return self.employee_handler.vote_item(data)
         elif command == 'next_day_menu':
             return self.employee_handler.next_day_menu()
+        elif command == 'show_notification':
+            return self.employee_handler.show_notification(data)
         else:
             return {'status': 'error', 'message': 'Unknown command'}
 

@@ -1,3 +1,4 @@
+import datetime
 class AdminHandler:
     def __init__(self, db):
         self.db = db
@@ -33,4 +34,15 @@ class AdminHandler:
             dishes_list = [{'item_id': dish[0], 'item_name': dish[1], 'meal_type': dish[2], 'availability': dish[3]} for dish in dishes]
             return {'status': 'success', 'dishes': dishes_list}
         except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
+    def add_notification(self, message):
+        try:
+            current_time = datetime.datetime.now()
+            query = "INSERT INTO notification (message, date) VALUES (%s, %s)"
+            self.db.execute(query, (message, current_time))
+            # self.db_connection.commit()
+            return {'status': 'success', 'message': 'Notification added successfully'}
+        except Exception as e:
+            print(f"Error adding notification: {str(e)}")
             return {'status': 'error', 'message': str(e)}
