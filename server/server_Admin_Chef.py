@@ -76,10 +76,6 @@ class Server:
         else:
             return {'status': 'error', 'message': 'Unknown command'}
 
-    # def view_recommendation(self, data):
-    #     num_items = data.get('num_items', 5)
-    #     recommendations = self.recommendation_system.get_recommendations(num_items)
-    #     return {'status': 'success', 'dishes': recommendations}
     def authenticate(self, username, password):
         query = "SELECT role FROM users WHERE username = %s AND password = %s"
         self.db.db_cursor.execute(query, (username, password))

@@ -6,7 +6,6 @@ class Client:
         self.host = host
         self.port = port
         self.role = None
-        self.user_id = None
 
     def connect(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,8 +13,6 @@ class Client:
         print("Connected to server")
 
     def send_command(self, command, data):
-        if self.user_id:
-            data['user_id'] = self.user_id
         message = json.dumps({'command': command, 'data': data})
         self.sock.sendall(message.encode())
         response = self.sock.recv(4096).decode()
