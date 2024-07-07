@@ -1,4 +1,5 @@
 import datetime
+from recomm2 import RecommendationSystem
 
 class EmployeeHandler:
     def __init__(self, db_connection):
@@ -91,59 +92,223 @@ class EmployeeHandler:
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
+    def get_feedback_questions(self, item_id):
+        try:
+            query_questions = """
+                              SELECT id, question 
+                              FROM detailed_feedback
+                              WHERE item_id = %s
+                              """
+            self.db.db_cursor.execute(query_questions, (item_id,))
+            questions = self.db.db_cursor.fetchall()
 
-def show_pending_feedback(self):
-    try:
+            if not questions:
+                return {'status': 'error', 'message': 'No questions found for the given item ID'}
 
-        query = """
-                SELECT df.item_id, df.question_id, df.question, f.item_name
-                FROM detailed_feedback df
-                JOIN food f ON df.item_id = f.item_id
-                WHERE df.answer IS NULL
-                """
-        self.db.db_cursor.execute(query)
-        questions = self.db.db_cursor.fetchall()
+            questions_list = [{'id': question[0], 'question': question[1]} for question in questions]
 
-        if not questions:
-            return {'status': 'success', 'message': 'No pending feedback questions.'}
+            return {'status': 'success', 'questions': questions_list}
 
-        pending_feedback = [
-            {
-                'item_id': question[0],
-                'question_id': question[1],
-                'question': question[2],
-                'item_name': question[3]
-            }
-            for question in questions
-        ]
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
 
-        return {'status': 'success', 'questions': pending_feedback}
+    def update_detailed_feedback(self, data):
+        try:
+            item_id = data.get('item_id')
+            feedback = data.get('feedback')
 
-    except Exception as e:
-        return {'status': 'error', 'message': str(e)}
+            for fb in feedback:
+                question_id = fb.get('id')
+                answer = fb.get('answer')
 
+                query_update = """
+                               UPDATE detailed_feedback
+                               SET answer = %s
+                               WHERE item_id = %s AND id = %s
+                               """
+                self.db.execute(query_update, (answer, item_id, question_id))
 
-def send_detailed_feedback(self, data):
-    try:
-        item_id = data.get('item_id')
-        feedback = data.get('feedback')  # feedback is a list of dictionaries with question_id and answer
+            return {'status': 'success', 'message': 'Feedback submitted successfully'}
 
-        for fb in feedback:
-            question_id = fb.get('question_id')
-            answer = fb.get('answer')
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
 
+    def get_feedback_items(self):
+        try:
             query = """
-                    UPDATE detailed_feedback
-                    SET answer = %s
-                    WHERE item_id = %s AND question_id = %s
+                    SELECT df.item_id, f.item_name
+                    FROM detailed_feedback df
+                    JOIN food f ON df.item_id = f.item_id
+                    GROUP BY df.item_id
                     """
-            self.db.db_cursor.execute(query, (answer, item_id, question_id))
+            self.db.db_cursor.execute(query)
+            feedback_items = self.db.db_cursor.fetchall()
 
-        self.db.db_conn.commit()
+            items_list = [{'item_id': item[0], 'item_name': item[1]} for item in feedback_items]
 
-        return {'status': 'success', 'message': 'Feedback submitted successfully'}
+            return {'status': 'success', 'items': items_list}
 
-    except Exception as e:
-        return {'status': 'error', 'message': str(e)}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
+    def send_detailed_feedback(self, data):
+        try:
+            item_id = data.get('item_id')
+            feedback = data.get('feedback')
+
+            for fb in feedback:
+                id = fb.get('id')
+                answer = fb.get('answer')
+
+                query = """
+                        UPDATE detailed_feedback
+                        SET answer = %s
+                        WHERE item_id = %s AND id = %s
+                        """
+                self.db.db_cursor.execute(query, (answer, item_id, id))
+
+            self.db.db_connection.commit()
+
+            return {'status': 'success', 'message': 'Feedback submitted successfully'}
+
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
+    def update_my_profile(self, data):
+        try:
+            user_id = data.get('user_id')
+            preference = data.get('preference')
+            spice_level = data.get('spice_level')
+            preferred_cuisine = data.get('preferred_cuisine')
+            sweet_tooth = data.get('sweet_tooth')
+
+            # Check if the user already has a preference record
+            query_check = """
+                          SELECT id FROM user_preference WHERE user_id = %s
+                          """
+            self.db.db_cursor.execute(query_check, (user_id,))
+            result = self.db.db_cursor.fetchone()
+
+            if result:
+                # Update existing preference record
+                query_update = """
+                               UPDATE user_preference
+                               SET preference = %s, spice_level = %s, preferred_cuisine = %s, sweet_tooth = %s
+                               WHERE user_id = %s
+                               """
+                self.db.db_cursor.execute(query_update,
+                                          (preference, spice_level, preferred_cuisine, sweet_tooth, user_id))
+            else:
+                # Insert new preference record
+                query_insert = """
+                               INSERT INTO user_preference (user_id, preference, spice_level, preferred_cuisine, sweet_tooth)
+                               VALUES (%s, %s, %s, %s, %s)
+                               """
+                self.db.db_cursor.execute(query_insert,
+                                          (user_id, preference, spice_level, preferred_cuisine, sweet_tooth))
+
+            self.db.db_connection.commit()
+
+            return {'status': 'success', 'message': 'Profile updated successfully'}
+
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
+    def view_recommendation(self, num_items):
+        try:
+            print("inside chef handler and View_recomm method")
+            recommender = RecommendationSystem(self.db)
+            recommendations = recommender.get_recommendations(num_items)
+            return {'status': 'success', 'dishes': recommendations}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+    def sort_next_day_menu(self, user_id, num_items):
+        try:
+            # Fetch next day's recommended menu items
+            next_day_menu_response = self.view_recommendation(num_items)
+            if next_day_menu_response['status'] != 'success':
+                return next_day_menu_response
+
+            dishes = next_day_menu_response['dishes']
+
+            # Fetch user's preferences
+            query_pref = """
+                         SELECT preference 
+                         FROM user_preference 
+                         WHERE user_id = %s AND EXISTS 
+                            (SELECT 1 FROM users WHERE id = %s AND role = 'employee')
+                         """
+            self.db.db_cursor.execute(query_pref, (user_id, user_id))
+            user_pref = self.db.db_cursor.fetchone()
+
+            if not user_pref:
+                return {'status': 'error', 'message': 'Entered user id is not on the role of an employee'}
+
+            preference = user_pref[0]
+
+            # Fetch item categories to get the categories for each item
+            item_ids = [dish['item_id'] for dish in dishes]
+            format_strings = ','.join(['%s'] * len(item_ids))
+            query_categories = f"SELECT item_id, category FROM item_categories WHERE item_id IN ({format_strings})"
+            self.db.db_cursor.execute(query_categories, tuple(item_ids))
+            item_categories = self.db.db_cursor.fetchall()
+
+            # Create a dictionary to map item_id to category
+            item_category_dict = {item[0]: item[1] for item in item_categories}
+
+            # Sort items based on user preference
+            preferred_items = [dish for dish in dishes if item_category_dict[dish['item_id']] == preference]
+            other_items = [dish for dish in dishes if item_category_dict[dish['item_id']] != preference]
+
+            sorted_dishes = preferred_items + other_items
+
+            return {'status': 'success', 'dishes': sorted_dishes}
+
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
+    # def sort_next_day_menu(self, user_id):
+    #     try:
+    #         # Get the next day's menu items using next_day_menu
+    #         next_day_menu_response = self.next_day_menu()
+    #         if next_day_menu_response['status'] != 'success':
+    #             return next_day_menu_response
+    #
+    #         dishes = next_day_menu_response['dishes']
+    #
+    #         # Fetch user's preferences
+    #         query_pref = "SELECT preference FROM user_preference WHERE user_id = %s and "
+    #         self.db.db_cursor.execute(query_pref, (user_id,))
+    #         user_pref = self.db.db_cursor.fetchone()
+    #
+    #         if not user_pref:
+    #             return {'status': 'error', 'message': 'User preferences not found'}
+    #
+    #         preference = user_pref[0]
+    #
+    #         # Fetch item categories to get the categories for each item
+    #         item_ids = [dish['item_id'] for dish in dishes]
+    #         format_strings = ','.join(['%s'] * len(item_ids))
+    #         query_categories = f"SELECT item_id, category FROM item_categories WHERE item_id IN ({format_strings})"
+    #         self.db.db_cursor.execute(query_categories, tuple(item_ids))
+    #         item_categories = self.db.db_cursor.fetchall()
+    #
+    #         # Create a dictionary to map item_id to category
+    #         item_category_dict = {item[0]: item[1] for item in item_categories}
+    #
+    #         # Sort items based on user preference
+    #         preferred_items = [dish for dish in dishes if item_category_dict[dish['item_id']] == preference]
+    #         other_items = [dish for dish in dishes if item_category_dict[dish['item_id']] != preference]
+    #
+    #         sorted_dishes = preferred_items + other_items
+    #
+    #         return {'status': 'success', 'dishes': sorted_dishes}
+    #
+    #     except Exception as e:
+    #         return {'status': 'error', 'message': str(e)}
+
+
+
+
 
 

@@ -81,11 +81,22 @@ class Server:
             return self.employee_handler.next_day_menu()
         elif command == 'show_notification':
             return self.employee_handler.show_notification(data)
+        elif command == 'get_feedback_items':
+            return self.employee_handler.get_feedback_items()
+        elif command == 'get_feedback_questions':
+            return self.employee_handler.get_feedback_questions(data['item_id'])
+        elif command == 'update_detailed_feedback':
+            return self.employee_handler.update_detailed_feedback(data)
         elif command == 'send_detailed_feedback':
-            return self.employee_handler
+            return self.employee_handler.send_detailed_feedback(data)
+        elif command == 'update_my_profile':
+            return self.employee_handler.update_my_profile(data)
+        elif command == 'view_recommendation':
+            return self.employee_handler.view_recommendation(data)
+        elif command == 'sort_next_day_menu':
+            return self.employee_handler.sort_next_day_menu(data['user_id'])
         else:
-            return {'status': 'error', 'message': 'Unknown command'}
-
+            print("Invalid command")
     def authenticate(self, username, password):
         query = "SELECT role FROM users WHERE username = %s AND password = %s"
         self.db.db_cursor.execute(query, (username, password))
