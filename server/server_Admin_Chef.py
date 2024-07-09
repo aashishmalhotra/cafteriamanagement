@@ -3,8 +3,8 @@ import threading
 import json
 from databases.database import Database
 from handlers.admin_handler import AdminHandler
-from chef_handler import ChefHandler
-from employee_handler import EmployeeHandler
+from handlers.chef_handler import ChefHandler
+from handlers.employee_handler import EmployeeHandler
 from recomm2 import RecommendationSystem
 class Server:
     def __init__(self, host='127.0.0.1', port=8889):
@@ -77,8 +77,8 @@ class Server:
             return self.employee_handler.provide_feedback(data)
         elif command == 'vote_item':
             return self.employee_handler.vote_item(data)
-        elif command == 'next_day_menu':
-            return self.employee_handler.next_day_menu()
+        # elif command == 'next_day_menu':
+        #     return self.employee_handler.next_day_menu()
         elif command == 'show_notification':
             return self.employee_handler.show_notification(data)
         elif command == 'get_feedback_items':
@@ -93,8 +93,10 @@ class Server:
             return self.employee_handler.update_my_profile(data)
         elif command == 'view_recommendation':
             return self.employee_handler.view_recommendation(data)
+        elif command == 'get_item_to_vote':
+            return self.employee_handler.get_item_to_vote()
         elif command == 'sort_next_day_menu':
-            return self.employee_handler.sort_next_day_menu(data['user_id'])
+            return self.employee_handler.sort_next_day_menu(data)
         else:
             print("Invalid command")
     def authenticate(self, username, password):

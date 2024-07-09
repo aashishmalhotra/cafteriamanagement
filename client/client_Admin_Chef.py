@@ -17,7 +17,6 @@ class Client:
         message = json.dumps({'command': command, 'data': data})
         self.sock.sendall(message.encode())
         response = self.sock.recv(4096).decode()
-        print('inside client send_command')
         return json.loads(response)
 
     def authenticate(self, username, password):
@@ -145,7 +144,7 @@ class Client:
 
             elif command == 'voting_results':
                 response = self.send_command('voting_results', {})
-                print("Voting results:", response)
+                # print("Voting results:", response)
                 for result in response.get('results', []):
                     print(result)
 
@@ -153,7 +152,7 @@ class Client:
                 item_ids = input("Enter item IDs for final menu (comma-separated): ")
                 item_ids = [int(item_id.strip()) for item_id in item_ids.split(',')]
                 response = self.send_command('choose_final_menu', {'item_ids': item_ids})
-                print(response)
+                print(response['message'])
 
             else:
                 print("Invalid command")
@@ -161,7 +160,7 @@ class Client:
     def handle_employee_commands(self):
         while True:
             print(
-                "Employee commands: view_menu, vote_item, provide_feedback, next_day_menu,show_notification, send_detailed_feedback, update_my_profile, sort_next_day_menu, view_recommendation,exit")
+                "Employee commands: view_menu, vote_item, provide_feedback,show_notification, send_detailed_feedback, update_my_profile, sort_next_day_menu, view_recommendation,exit")
             command = input("Enter command: ").strip().lower()
 
             if command == 'exit':
@@ -185,17 +184,19 @@ class Client:
             #     print(response)
 
             elif command == 'vote_item':
+                response = self.send_command('get_item_to_vote', {})
+                print(response['message'])
                 item_id = int(input("Enter item ID to vote: "))
                 vote = input("Enter your vote: ")
                 data = {'item_id': item_id, 'vote': vote}
                 response = self.send_command(command, data)
                 print(response)
 
-            elif command == 'next_day_menu':
-                response = self.send_command('next_day_menu', {})
-                print("Next day's menu:")
-                for dish in response.get('dishes', []):
-                    print(dish)
+            # elif command == 'next_day_menu':
+            #     response = self.send_command('next_day_menu', {})
+            #     print("Next day's menu:")
+            #     for dish in response.get('dishes', []):
+            #         print(dish)
 
             elif command == 'show_notification':
                 user_name = str(input("Enter your username: "))
@@ -264,8 +265,8 @@ class Client:
 
             elif command == 'sort_next_day_menu':
                 user_id = int(input('Enter your user ID: '))
-                num_items = int(input('Enter the number of items to fetch: '))
-                response = self.send_command('sort_next_day_menu', {'user_id': user_id, 'num_items': num_items})
+                data = {'user_id': user_id}
+                response = self.send_command('sort_next_day_menu', data)
                 if response['status'] == 'error':
                     print(response['message'])
                 else:

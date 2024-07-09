@@ -2,6 +2,7 @@ from collections import Counter
 import re
 from databases.database import Database
 
+
 class RecommendationSystem:
     def __init__(self, db):
         self.db = db
@@ -17,20 +18,26 @@ class RecommendationSystem:
 
     def analyze_comments(self, feedback):
         print("Inside analyze_comments")
-        positive_keywords = ['good', 'great', 'excellent', 'tasty', 'delicious', 'amazing', 'nice']
+        positive_keywords = ['good', 'great', 'excellent', 'tasty', 'delicious', 'amazing', 'nice', 'perfect', 'best',
+                             'enjoyed']
+        negative_keywords = ['bad', 'terrible', 'awful', 'tasteless', 'poor', 'disgusting', 'worst', 'horrible',
+                             'unpleasant', 'not good']
         item_mentions = {}
 
         for item_id, comment in feedback:
             comment = comment.lower()
-            if any(keyword in comment for keyword in positive_keywords):
-                if item_id not in item_mentions:
-                    item_mentions[item_id] = 0
-                item_mentions[item_id] += 1
+            positive_count = sum(1 for keyword in positive_keywords if keyword in comment)
+            negative_count = sum(1 for keyword in negative_keywords if keyword in comment)
+
+            if item_id not in item_mentions:
+                item_mentions[item_id] = 0
+
+            item_mentions[item_id] += positive_count
+            item_mentions[item_id] -= negative_count
 
         return item_mentions
 
     def get_top_items(self, item_mentions, num_items):
-        num_items = int(num_items['num_items'])
         sorted_items = sorted(item_mentions.items(), key=lambda x: x[1], reverse=True)
         return sorted_items[:num_items]
 
@@ -73,11 +80,12 @@ class RecommendationSystem:
         recommendations = self.recommend_items(item_mentions, num_items)
         return recommendations
 
-
-if __name__ == "__main__":
-    db = Database()
-    recommender = RecommendationSystem(db)
-    recommendations = recommender.get_recommendations()
-    print("Recommended items:")
-    for recommendation in recommendations:
-        print(recommendation)
+#
+# if __name__ == "__main__":
+#     db = Database()
+#     recommender = RecommendationSystem(db)
+#     num_items = 5  # Example number of items to recommend
+#     recommendations = recommender.get_recommendations(num_items)
+#     print("Recommended items:")
+#     for recommendation in recommendations:
+#         print(recommendation)
