@@ -2,7 +2,7 @@ import datetime
 # from recomm2 import RecommendationSystem
 
 import datetime
-from recomm2 import RecommendationSystem
+from recommendation_system import RecommendationSystem
 
 class ChefHandler:
     def __init__(self, db_connection):

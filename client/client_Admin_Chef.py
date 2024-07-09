@@ -133,7 +133,6 @@ class Client:
                 num_items = int(input("Enter number of items to recommend: ").strip())
                 response = self.send_command('view_recommendation', {'num_items': num_items})
                 print("Recommended dishes:")
-                print("In response", response)
                 for dish in response.get('dishes', []):
                     print(dish)
 
@@ -259,7 +258,6 @@ class Client:
                 num_items = int(input("Enter number of items to recommend: ").strip())
                 response = self.send_command('view_recommendation', {'num_items': num_items})
                 print("Recommended dishes:")
-                print("In response", response)
                 for dish in response.get('dishes', []):
                     print(dish)
 

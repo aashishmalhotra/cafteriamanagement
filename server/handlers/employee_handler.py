@@ -1,5 +1,5 @@
 import datetime
-from recomm2 import RecommendationSystem
+from recommendation_system import RecommendationSystem
 
 class EmployeeHandler:
     def __init__(self, db_connection):

@@ -5,7 +5,7 @@ from databases.database import Database
 from handlers.admin_handler import AdminHandler
 from handlers.chef_handler import ChefHandler
 from handlers.employee_handler import EmployeeHandler
-from recomm2 import RecommendationSystem
+from recommendation_system import RecommendationSystem
 class Server:
     def __init__(self, host='127.0.0.1', port=8889):
         self.host = host
