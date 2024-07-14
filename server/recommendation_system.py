@@ -1,6 +1,3 @@
-from collections import Counter
-import re
-from databases.database import Database
 
 
 class RecommendationSystem:

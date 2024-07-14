@@ -1,7 +1,6 @@
 import socket
 import json
 
-
 class Client:
     def __init__(self, host='localhost', port=8889):
         self.host = host
@@ -60,7 +59,7 @@ class Client:
             elif command == 'add_notification':
                 data = str(input("Enter message to be sent as notification: "))
                 response = self.send_command('add_notification', data)
-                print("Server Response", response)
+                print(response['message'])
 
 
             elif command == 'view_discard_menu':
@@ -139,7 +138,7 @@ class Client:
             elif command == 'add_notification':
                 data = str(input("Enter message to be sent as notification: "))
                 response = self.send_command('add_notification', data)
-                print("Server Response", response)
+                print(response['message'])
 
             elif command == 'voting_results':
                 response = self.send_command('voting_results', {})
@@ -171,19 +170,20 @@ class Client:
                 for dish in response.get('dishes', []):
                     print(dish)
 
-            # elif command == 'provide_feedback':
-            #     item_name = input("Enter item name: ")
-            #     qty = int(input("Enter quantity: "))
-            #     quality = int(input("Enter quality: "))
-            #     vfm = int(input("Enter value for money (vfm): "))
-            #     comments = input("Enter comments: ")
-            #
-            #     data = {'item_name': item_name, 'qty': qty, 'quality': quality, 'vfm': vfm, 'comments': comments}
-            #     response = self.send_command('provide_feedback', data)
-            #     print(response)
+            elif command == 'provide_feedback':
+                item_name = input("Enter item name: ")
+                qty = int(input("Enter quantity: "))
+                quality = int(input("Enter quality: "))
+                vfm = int(input("Enter value for money (vfm): "))
+                comments = input("Enter comments: ")
+
+                data = {'item_name': item_name, 'qty': qty, 'quality': quality, 'vfm': vfm, 'comments': comments}
+                response = self.send_command('provide_feedback', data)
+                print(response['message'])
 
             elif command == 'vote_item':
                 response = self.send_command('get_item_to_vote', {})
+                print("Vote for items selected by the chef: ")
                 print(response['message'])
                 item_id = int(input("Enter item ID to vote: "))
                 vote = input("Enter your vote: ")
@@ -191,27 +191,27 @@ class Client:
                 response = self.send_command(command, data)
                 print(response)
 
-            # elif command == 'next_day_menu':
-            #     response = self.send_command('next_day_menu', {})
-            #     print("Next day's menu:")
-            #     for dish in response.get('dishes', []):
-            #         print(dish)
+            elif command == 'next_day_menu':
+                response = self.send_command('next_day_menu', {})
+                print("Next day's menu:")
+                for dish in response.get('dishes', []):
+                    print(dish)
 
             elif command == 'show_notification':
                 user_name = str(input("Enter your username: "))
                 data = {'user_name': user_name}
                 response = self.send_command('show_notification', data)
                 print("Today's Notification:")
-                for notification in response.get('messages_list', []):
-                    print(notification)
+                for notification in response.get('message', []):
+                    print(notification['message'])
 
-            elif command == 'provide_feedback':
-                item_id = int(input("Enter item ID to provide feedback: "))
-                rating = float(input("Enter rating (1-5): "))
-                comment = input("Enter your comments: ")
-                data = {'item_id': item_id, 'rating': rating, 'comment': comment}
-                response = self.send_command('provide_feedback', data)
-                print(response.get('message'))
+            # elif command == 'provide_feedback':
+            #     item_id = int(input("Enter item ID to provide feedback: "))
+            #     rating = float(input("Enter rating (1-5): "))
+            #     comment = input("Enter your comments: ")
+            #     data = {'item_id': item_id, 'rating': rating, 'comment': comment}
+            #     response = self.send_command('provide_feedback', data)
+            #     print(response.get('message'))
 
 
             elif command == 'send_detailed_feedback':
@@ -271,13 +271,6 @@ class Client:
                     print("Next day's menu:")
                     for dish in response.get('dishes', []):
                         print(dish)
-
-            # elif command == 'sort_next_day_menu':
-            #     user_id = int(input('Enter your user ID: '))
-            #     response = self.send_command('sort_next_day_menu', {'user_id': user_id})
-            #     print("Next day's menu:")
-            #     for dish in response.get('dishes', []):
-            #         print(dish)
             else:
                 print("Command not found in client")
 
