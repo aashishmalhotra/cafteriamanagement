@@ -31,11 +31,51 @@ class Client:
     def handle_admin_commands(self):
         while True:
             print(
-                "Admin commands: add_dish, update_dish, delete_dish, view_dishes, add_notification,view_discard_menu, exit")
+                "Admin commands: add_dish, update_dish, delete_dish, view_dishes, add_notification,view_discard_menu,update_item_categories, add_item_categories, exit")
             command = input("Enter command: ").strip().lower()
 
             if command == 'exit':
                 break
+
+            elif command == 'update_item_categories':
+                item_id = int(input("Enter item ID: "))
+                preference = input("Enter preference (vegetarian/non vegetarian): ")
+                spice_level = input("Enter spice level (low/medium/high): ")
+                sweet_tooth = input("Enter sweet tooth (yes/no): ").strip().lower()
+                preferred_cuisine = input("Enter preferred cuisine: ")
+
+                data = {
+                    'item_id': item_id,
+                    'preference': preference,
+                    'spice_level': spice_level,
+                    'sweet_tooth': sweet_tooth,
+                    'preferred_cuisine': preferred_cuisine
+                }
+
+                response = self.send_command(command,data)
+                print(response['message'])
+
+            elif command == 'get_items_id':
+                response = self.send_command('get_item_id',data)
+
+            elif command == 'add_item_categories':
+                resource = self.send_command('get_item_id',data)
+                item_id = int(input("Enter item ID: "))
+                preference = input("Enter preference (vegetarian/non vegetarian): ")
+                spice_level = input("Enter spice level (low/medium/high): ")
+                sweet_tooth = input("Enter sweet tooth (yes/no): ").strip().lower()
+                preferred_cuisine = input("Enter preferred cuisine: ")
+
+                data = {
+                    'item_id': item_id,
+                    'preference': preference,
+                    'spice_level': spice_level,
+                    'sweet_tooth': sweet_tooth,
+                    'preferred_cuisine': preferred_cuisine
+                }
+
+                response = self.send_command(command,data)
+                print(response['message'])
 
             elif command in ['add_dish', 'update_dish', 'delete_dish']:
                 item_name = input("Enter item name: ")
@@ -60,7 +100,6 @@ class Client:
                 data = str(input("Enter message to be sent as notification: "))
                 response = self.send_command('add_notification', data)
                 print(response['message'])
-
 
             elif command == 'view_discard_menu':
                 response = self.send_command('view_discard_menu', {})

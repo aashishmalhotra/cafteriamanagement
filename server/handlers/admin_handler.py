@@ -1,7 +1,6 @@
 import datetime
 from server.databases import admin_queries
-
-
+import time
 class AdminHandler:
     def __init__(self, db):
         self.db = db
@@ -14,6 +13,21 @@ class AdminHandler:
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
+    def get_items_id(self,data):
+        query = admin_queries.get_item_id()
+        self.db.execute(query,(data['item_name'],))
+        print("got item id")
+        return {'message':query}
+    def add_item_categories(self,data):
+        try:
+            query = admin_queries.add_item_category()
+            self.db.execute(query, (
+                data['preference'], data['spice_level'], data['sweet_tooth'],
+                data['preferred_cuisine'], data['item_id']))
+            return {'status': 'success', 'message': 'Item categories updated successfully'}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
     def update_dish(self, data):
         try:
             query = admin_queries.update_food()
@@ -22,6 +36,15 @@ class AdminHandler:
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
+    def update_item_categories(self, data):
+        try:
+            query = admin_queries.update_item_category()
+            self.db.execute(query, (
+            data['preference'], data['spice_level'], data['sweet_tooth'],
+            data['preferred_cuisine'], data['item_id']))
+            return {'status': 'success', 'message': 'Item categories updated successfully'}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
     def delete_dish(self, data):
         try:
             query = admin_queries.delete_food()

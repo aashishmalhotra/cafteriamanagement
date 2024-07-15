@@ -1,3 +1,14 @@
+def update_item_category():
+    return "UPDATE item_categories SET preference = %s, spice_level = %s, sweet_tooth = %s, preferred_cuisine = %s WHERE item_id = %s"
+
+def add_item_category():
+    return "INSERT INTO item_categories SET preference = %s, spice_level = %s, sweet_tooth = %s, preferred_cuisine = %s WHERE item_id = %s"
+
+def get_item_id():
+    return """SELECT f.item_id
+    FROM food f
+    LEFT JOIN item_categories ic ON f.item_id = ic.item_id
+    WHERE f.item_name = %s"""
 def insert_food():
     return "INSERT INTO food (item_name, meal_type, availability) VALUES (%s, %s, %s)"
 

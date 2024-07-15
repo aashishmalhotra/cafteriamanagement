@@ -43,10 +43,15 @@ class Server:
     def route_command(self, command, data):
         if command == 'authenticate':
             return self.authenticate(data['username'], data['password'])
+
         elif command == 'add_dish':
             return self.admin_handler.add_dish(data)
+        elif command == 'add_item_categories':
+            return self.admin_handler.add_item_categories(data)
         elif command == 'update_dish':
             return self.admin_handler.update_dish(data)
+        elif command == 'update_item_categories':
+            return self.admin_handler.update_item_categories(data)
         elif command == 'delete_dish':
             return self.admin_handler.delete_dish(data)
         elif command == 'view_dishes':
@@ -58,7 +63,7 @@ class Server:
         elif command == 'remove_food_item':
             return self.admin_handler.remove_food_item(data)
         elif command == 'get_detailed_feedback':
-            return self.admin_handler.get_detailed_feedback((data))
+            return self.admin_handler.get_detailed_feedback(data)
 
         elif command == 'view_menu':
             return self.chef_handler.view_menu()
