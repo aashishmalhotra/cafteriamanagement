@@ -1,5 +1,4 @@
-# database/queries.py
-
+import datetime
 def get_all_dishes():
     return "SELECT item_id, item_name, meal_type, availability FROM food"
 
@@ -9,13 +8,13 @@ def get_item_id_by_name():
 def insert_feedback():
     return """INSERT INTO feedback (item_id, item_name, qty, quality, vfm, comments) 
               VALUES (%s, %s, %s, %s, %s, %s)"""
-
-def get_items_for_voting():
-    return """
-           SELECT f.item_name, f.item_id
-           FROM vote v
-           JOIN food f ON v.item_id = f.item_id
-           WHERE v.is_selected = 1
+def get_items_for_voting(today_date):
+    return f"""
+            SELECT f.item_name, f.item_id
+            FROM vote v
+            JOIN food f ON v.item_id = f.item_id
+            WHERE v.is_selected = 1
+            AND DATE(v.vote_date) = '{today_date}'
            """
 def insert_vote():
     return "INSERT INTO vote (item_id, vote) VALUES (%s, %s)"
@@ -52,7 +51,6 @@ def get_feedback_items():
            JOIN food f ON df.item_id = f.item_id
            GROUP BY df.item_id
            """
-
 def update_or_insert_user_preference(user_has_preference):
     if user_has_preference:
         return """
@@ -65,7 +63,6 @@ def update_or_insert_user_preference(user_has_preference):
                INSERT INTO user_preference (user_id, preference, spice_level, preferred_cuisine, sweet_tooth)
                VALUES (%s, %s, %s, %s, %s)
                """
-
 def get_user_preference():
     return """
            SELECT preference, spice_level, preferred_cuisine, sweet_tooth 
@@ -73,7 +70,6 @@ def get_user_preference():
            WHERE user_id = %s AND EXISTS 
               (SELECT 1 FROM users WHERE id = %s AND role = 'employee')
            """
-
 def get_item_categories(item_ids):
     format_strings = ','.join(['%s'] * len(item_ids))
     return f"""

@@ -1,5 +1,3 @@
-
-
 class RecommendationSystem:
     def __init__(self, db):
         self.db = db
@@ -10,15 +8,28 @@ class RecommendationSystem:
             feedback = self.db.fetchall(query)
             return feedback
         except Exception as e:
-            print(f"Error extracting comments: {str(e)}")
-            return []
+            print(f"Error extracting comments failed due to: {str(e)}")
+            # return []
 
     def analyze_comments(self, feedback):
-        print("Inside analyze_comments")
-        positive_keywords = ['good', 'great', 'excellent', 'tasty', 'delicious', 'amazing', 'nice', 'perfect', 'best',
-                             'enjoyed']
-        negative_keywords = ['bad', 'terrible', 'awful', 'tasteless', 'poor', 'disgusting', 'worst', 'horrible',
-                             'unpleasant', 'not good']
+        positive_keywords = [
+            'good', 'great', 'excellent', 'tasty', 'delicious', 'amazing', 'nice', 'perfect', 'best', 'enjoyed',
+            'fantastic', 'superb', 'wonderful', 'lovely', 'awesome', 'outstanding', 'satisfying', 'pleasing',
+            'scrumptious',
+            'yummy', 'savory', 'flavorful', 'mouthwatering', 'exquisite', 'delightful', 'top-notch', 'heavenly',
+            'spectacular',
+            'brilliant', 'exceptional', 'divine', 'juicy', 'succulent', 'magnificent'
+        ]
+        negative_keywords = [
+            'bad', 'terrible', 'awful', 'tasteless', 'poor', 'disgusting', 'worst', 'horrible', 'unpleasant',
+            'not good',
+            'dreadful', 'gross', 'nasty', 'unsatisfactory', 'distasteful', 'revolting', 'yucky', 'repulsive',
+            'inferior',
+            'subpar', 'crummy', 'atrocious', 'vile', 'appalling', 'repugnant', 'foul', 'horrid', 'unappetizing',
+            'bland',
+            'displeasing', 'mediocre', 'unpalatable', 'ghastly', 'unworthy'
+        ]
+
         item_mentions = {}
 
         for item_id, comment in feedback:

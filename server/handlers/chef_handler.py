@@ -47,16 +47,12 @@ class ChefHandler:
         try:
             item_ids = data['item_ids']
 
-            # Prepare placeholders for the query
             placeholders = ', '.join(['(%s, 1, CURDATE())'] * len(item_ids))
 
-            # Prepare the values to be inserted
             values = tuple(item_ids)
 
-            # Construct the SQL query
             query = chef_queries.insert_final_menu().format(placeholders)
 
-            # Execute the query
             self.db.execute(query, values)
 
             return {'status': 'success', 'message': 'Final menu chosen successfully'}

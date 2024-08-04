@@ -5,7 +5,6 @@ from server.databases import employee_queries
 class EmployeeHandler:
     def __init__(self, db_connection):
         self.db = db_connection
-
     def view_menu(self):
         try:
             query = employee_queries.get_all_dishes()
@@ -42,7 +41,8 @@ class EmployeeHandler:
 
     def get_item_to_vote(self):
         try:
-            query = employee_queries.get_items_for_voting()
+            today_date = datetime.datetime.now().strftime('%Y-%m-%d')
+            query = employee_queries.get_items_for_voting(today_date)
             self.db.db_cursor.execute(query)
             items = self.db.db_cursor.fetchall()
 
@@ -68,15 +68,6 @@ class EmployeeHandler:
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
-    def next_day_menu(self):
-        try:
-            query = employee_queries.get_next_day_menu()
-            dishes = self.db.fetchall(query)
-            dishes_list = [{'item_id': dish[0], 'item_name': dish[1], 'meal_type': dish[2], 'availability': dish[3]} for dish in dishes]
-            return {'status': 'success', 'dishes': dishes_list}
-        except Exception as e:
-            return {'status': 'error', 'message': str(e)}
-
     def show_notification(self, data):
         username = data.get('user_name')
 
@@ -85,20 +76,14 @@ class EmployeeHandler:
             result = self.db.fetchone(query, (username,))
 
             if not result:
-                return {'status': 'error', 'message': 'User not found'}
+                return {'status': 'error', 'message': 'User not found try with correct credentials'}
 
-            user_id = result[0]
-
-            print("inside try")
             today_date = datetime.date.today()
             date_str = today_date.strftime('%Y-%m-%d')
-
             query = employee_queries.get_notifications_by_date()
             messages = self.db.fetchall(query, (date_str,))
-
             messages_list = [{'message': message[0]} for message in messages]
-
-            return {'status': 'success', 'messages': messages_list}
+            return {'status': 'success', 'message': messages_list}
 
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
@@ -192,17 +177,24 @@ class EmployeeHandler:
 
     def view_recommendation(self, num_items):
         try:
-            print("inside chef handler and View_recomm method")
             recommender = RecommendationSystem(self.db)
             recommendations = recommender.get_recommendations(num_items)
             return {'status': 'success', 'dishes': recommendations}
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
 
+    def next_day_menu(self):
+        try:
+            query = employee_queries.get_next_day_menu()
+            dishes = self.db.fetchall(query)
+            dishes_list = [{'item_id': dish[0], 'item_name': dish[1], 'meal_type': dish[2], 'availability': dish[3]} for dish in dishes]
+            return {'status': 'success', 'dishes': dishes_list}
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}
+
     def sort_next_day_menu(self, data):
         try:
             user_id = data.get('user_id')
-
             next_day_menu_response = self.next_day_menu()
             if next_day_menu_response['status'] != 'success':
                 return next_day_menu_response
