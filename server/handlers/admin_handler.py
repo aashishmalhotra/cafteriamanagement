@@ -59,15 +59,15 @@ class AdminHandler:
 
     def update_dish(self, data):
         try:
-            item_name = data.get('item_name')
-            print(item_name)
-            query_item_id = admin_queries.get_food_item_id()
-            self.db.execute(query_item_id,(item_name))
-            item_id = self.db.fetchone()
-            print(item_id)
+            # item_name = data.get('item_name')
+            # print(item_name)
+            # query_item_id = admin_queries.get_food_item_id()
+            # self.db.execute(query_item_id,(item_name,))
+            # item_id = self.db.fetchall()
+            # print(item_id)
 
             query = admin_queries.update_food()
-            self.db.execute(query, (data['item_name'], data['meal_type'], data['availability'], item_id))
+            self.db.execute(query, (data['item_name'], data['meal_type'], data['availability'], data['item_id']))
             return {'status': 'success', 'message': 'Item updated successfully'}
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
@@ -78,7 +78,7 @@ class AdminHandler:
             self.db.execute(query, (
             data['preference'], data['spice_level'], data['sweet_tooth'],
             data['preferred_cuisine'], data['item_id']))
-            return {'status': 'success', 'message': 'Item categories updated successfully'}
+            return {'status': 'success', 'message': 'Item preferences updated successfully'}
         except Exception as e:
             return {'status': 'error', 'message': str(e)}
     def delete_dish(self, data):

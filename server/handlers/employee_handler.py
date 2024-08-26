@@ -184,8 +184,9 @@ class EmployeeHandler:
             return {'status': 'error', 'message': str(e)}
 
     def next_day_menu(self):
+        today_date = datetime.datetime.now().strftime('%Y-%m-%d')
         try:
-            query = employee_queries.get_next_day_menu()
+            query = employee_queries.get_next_day_menu(today_date)
             dishes = self.db.fetchall(query)
             dishes_list = [{'item_id': dish[0], 'item_name': dish[1], 'meal_type': dish[2], 'availability': dish[3]} for dish in dishes]
             return {'status': 'success', 'dishes': dishes_list}

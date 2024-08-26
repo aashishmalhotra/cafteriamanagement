@@ -19,10 +19,10 @@ def get_items_for_voting(today_date):
 def insert_vote():
     return "INSERT INTO vote (item_id, vote) VALUES (%s, %s)"
 
-def get_next_day_menu():
-    return """SELECT f.* FROM food f
+def get_next_day_menu(today_date):
+    return f"""SELECT f.* FROM food f
               JOIN vote v ON f.item_id = v.item_id
-              WHERE v.is_selected = 1"""
+              WHERE v.is_selected = 1 and v.vote_date = '{today_date}'"""
 
 def get_user_id_by_name():
     return "SELECT id FROM users WHERE username = %s"
@@ -77,3 +77,9 @@ def get_item_categories(item_ids):
            FROM item_categories 
            WHERE item_id IN ({format_strings})
            """
+
+def get_seen_notifications():
+    return "SELECT notification_id FROM seen_notifications WHERE user_id = %s AND date = %s"
+
+def insert_seen_notification():
+    return "INSERT INTO seen_notifications (user_id, notification_id, date) VALUES (%s, %s, %s)"

@@ -9,7 +9,7 @@ def get_vote_results():
                 SELECT f.item_id, f.item_name, COUNT(v.vote_id) as total_votes
                 FROM vote v
                 JOIN food f ON v.item_id = f.item_id
-                WHERE v.is_selected = 0
+                WHERE v.is_selected = 1
                 GROUP BY f.item_id
                 ORDER BY total_votes DESC
             """

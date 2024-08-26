@@ -29,25 +29,44 @@ class Client:
             return False
 
     def handle_admin_commands(self):
-        while True:
-            print(
-                "Admin commands: add_dish, update_dish, delete_dish, view_dishes, add_notification,view_discard_menu,update_item_categories, exit")
-            command = input("Enter command: ").replace(" ", "_").lower()
+        commands = [
+            "add_dish",
+            "update_dish",
+            "delete_dish",
+            "view_dishes",
+            "add_notification",
+            "view_discard_menu",
+            "update_item_categories",
+            "exit"
+        ]
 
-            if command == 'exit':
+        while True:
+            print("Admin commands:")
+            for i, command in enumerate(commands, 1):
+                print(f"{i}. {command.replace('_', ' ').capitalize()}")
+
+            command = input("Enter command number: ").strip()
+
+            if command == '8':
                 break
 
-            elif command == 'view_dishes':
-                response = self.send_command(command, {})
-                for dish in response.get('dishes', []):
-                    print(dish)
-
-            elif command == 'add_dish':
+            elif command == '4':
                 response = self.send_command('view_dishes', {})
-                print("Available items in menu: ")
-                for dish in response.get('dishes', []):
-                    print(dish)
-                item_name = input("Enter item name: ")
+                print(f"\n{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
+
+            elif command == '1':
+                response = self.send_command('view_dishes', {})
+                print("\nAvailable items in menu: ")
+                print(f"{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
+                item_name = input("Enter new item name: ")
                 meal_type = input("Enter meal type: ")
                 availability = input("Enter availability (True/False): ").strip().lower() == 'true'
                 preference = input("Enter preference (vegetarian/non vegetarian/eggetarian): ")
@@ -64,28 +83,34 @@ class Client:
                     'sweet_tooth': sweet_tooth,
                     'preferred_cuisine': preferred_cuisine
                 }
-                response = self.send_command(command, data)
+                response = self.send_command('add_dish', data)
                 print(response['message'])
 
-            elif command == 'update_dish':
+            elif command == '2':
                 response = self.send_command('view_dishes', {})
                 print("Available items in menu: ")
-                for dish in response.get('dishes', []):
-                    print(dish)
-                item_name = input("Enter item name: ")
-                meal_type = input("Enter meal type: ")
+                print(f"\n{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
+                item_name = input("Enter new item name: ")
+                meal_type = input("Enter new meal type: ")
                 availability = input("Enter availability (True/False): ").strip().lower() == 'true'
-                item_id = int(input("Enter item ID: "))
-                data = {'item_name': item_name, 'meal_type': meal_type, 'availability': availability,'item_id': item_id}
-                response = self.send_command(command, data)
-                print(response)
+                item_id = int(input("Enter item ID to be updated: "))
+                data = {'item_name': item_name, 'meal_type': meal_type, 'availability': availability,
+                        'item_id': item_id}
+                response = self.send_command('update_dish', data)
+                print(response['message'])
 
-
-            elif command == 'delete_dish':
+            elif command == '3':
                 response = self.send_command('view_dishes', {})
                 print("Available items in menu: ")
-                for dish in response.get('dishes', []):
-                    print(dish)
+                print(f"\n{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
                 item_name = input("Enter item name: ")
                 meal_type = input("Enter meal type: ")
                 availability = input("Enter availability (True/False): ").strip().lower() == 'true'
@@ -95,16 +120,19 @@ class Client:
                 response = self.send_command('delete_dish', data)
                 print(response)
 
-            elif command == 'update_item_categories':
+            elif command == '7':
                 response = self.send_command('view_dishes', {})
                 print("Available items in menu: ")
-                for dish in response.get('dishes', []):
-                    print(dish)
+                print(f"\n{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
                 item_id = int(input("Enter item ID: "))
                 preference = input("Enter preference (vegetarian/non vegetarian/eggetarian): ")
                 spice_level = input("Enter spice level (low/medium/high): ")
                 sweet_tooth = input("Enter sweet tooth (yes/no): ").strip().lower()
-                preferred_cuisine = input("Enter preferred cuisine(north indian/south indian/other): ")
+                preferred_cuisine = input("Enter preferred cuisine (north indian/south indian/other): ")
 
                 data = {
                     'item_id': item_id,
@@ -114,15 +142,15 @@ class Client:
                     'preferred_cuisine': preferred_cuisine
                 }
 
-                response = self.send_command(command,data)
+                response = self.send_command('update_item_categories', data)
                 print(response['message'])
 
-            elif command == 'add_notification':
+            elif command == '5':
                 data = str(input("Enter message to be sent as notification: "))
                 response = self.send_command('add_notification', data)
                 print(response['message'])
 
-            elif command == 'view_discard_menu':
+            elif command == '6':
                 response = self.send_command('view_discard_menu', {})
 
                 if response['status'] != 'success':
@@ -134,25 +162,23 @@ class Client:
                         continue
 
                     for item in discard_items:
-                        print(
-                            f"Item ID: {item['item_id']}, Item Name: {item['item_name']}")
+                        print(f"Item ID: {item['item_id']}, Item Name: {item['item_name']}")
 
                     while True:
                         print("\nOptions:")
-                        print("1. Remove a food item from the menu")
-                        print("2. Get detailed feedback on a food item")
-                        print("3. Exit")
+                        print("a. Remove a food item from the menu")
+                        print("b. Get detailed feedback on a food item")
+                        print("c. Exit")
 
                         choice = input("Enter your choice: ").strip()
 
-                        if choice == '1':
+                        if choice == 'a':
                             item_id = input("Enter the item ID to remove: ").strip()
                             data = {'item_id': item_id}
                             response = self.send_command('remove_food_item', data)
                             print(response)
 
-
-                        elif choice == '2':
+                        elif choice == 'b':
                             item_id = input("Enter the item ID to get detailed feedback: ").strip()
                             questions = []
 
@@ -164,7 +190,7 @@ class Client:
                             response = self.send_command('get_detailed_feedback', data)
                             print(response)
 
-                        elif choice == '3':
+                        elif choice == 'c':
                             break
 
                         else:
@@ -173,45 +199,212 @@ class Client:
             else:
                 print("Invalid command! Try Again.")
 
-    def handle_chef_commands(self):
-        while True:
-            print(
-                "Chef commands: view_menu, view_recommendation,add_notification, voting_results, choose_final_menu, exit")
-            command = input("Enter command: ").replace(" ", "_").lower()
+    # def handle_admin_commands(self):
+    #     while True:
+    #         print(
+    #             "Admin commands: add_dish, update_dish, delete_dish, view_dishes, add_notification,view_discard_menu,update_item_categories, exit")
+    #         command = input("Enter command: ").replace(" ", "_").lower()
+    #
+    #         if command == 'exit':
+    #             break
+    #
+    #         elif command == 'view_dishes':
+    #             response = self.send_command(command, {})
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #
+    #         elif command == 'add_dish':
+    #             response = self.send_command('view_dishes', {})
+    #             print("Available items in menu: ")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #             item_name = input("Enter item name: ")
+    #             meal_type = input("Enter meal type: ")
+    #             availability = input("Enter availability (True/False): ").strip().lower() == 'true'
+    #             preference = input("Enter preference (vegetarian/non vegetarian/eggetarian): ")
+    #             spice_level = input("Enter spice level (low/medium/high): ")
+    #             sweet_tooth = input("Enter sweet tooth (yes/no): ").strip().lower()
+    #             preferred_cuisine = input("Enter preferred cuisine: ")
+    #
+    #             data = {
+    #                 'item_name': item_name,
+    #                 'meal_type': meal_type,
+    #                 'availability': availability,
+    #                 'preference': preference,
+    #                 'spice_level': spice_level,
+    #                 'sweet_tooth': sweet_tooth,
+    #                 'preferred_cuisine': preferred_cuisine
+    #             }
+    #             response = self.send_command(command, data)
+    #             print(response['message'])
+    #
+    #         elif command == 'update_dish':
+    #             response = self.send_command('view_dishes', {})
+    #             print("Available items in menu: ")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #             item_name = input("Enter new item name: ")
+    #             meal_type = input("Enter new meal type: ")
+    #             availability = input("Enter availability (True/False): ").strip().lower() == 'true'
+    #             item_id = int(input("Enter item ID to be updated: "))
+    #             data = {'item_name': item_name, 'meal_type': meal_type, 'availability': availability, 'item_id': item_id}
+    #             response = self.send_command(command, data)
+    #             print(response['message'])
+    #
+    #
+    #         elif command == 'delete_dish':
+    #             response = self.send_command('view_dishes', {})
+    #             print("Available items in menu: ")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #             item_name = input("Enter item name: ")
+    #             meal_type = input("Enter meal type: ")
+    #             availability = input("Enter availability (True/False): ").strip().lower() == 'true'
+    #             item_id = int(input("Enter item ID: "))
+    #             data = {'item_name': item_name, 'meal_type': meal_type, 'availability': availability,
+    #                     'item_id': item_id}
+    #             response = self.send_command('delete_dish', data)
+    #             print(response)
+    #
+    #         elif command == 'update_item_categories':
+    #             response = self.send_command('view_dishes', {})
+    #             print("Available items in menu: ")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #             item_id = int(input("Enter item ID: "))
+    #             preference = input("Enter preference (vegetarian/non vegetarian/eggetarian): ")
+    #             spice_level = input("Enter spice level (low/medium/high): ")
+    #             sweet_tooth = input("Enter sweet tooth (yes/no): ").strip().lower()
+    #             preferred_cuisine = input("Enter preferred cuisine(north indian/south indian/other): ")
+    #
+    #             data = {
+    #                 'item_id': item_id,
+    #                 'preference': preference,
+    #                 'spice_level': spice_level,
+    #                 'sweet_tooth': sweet_tooth,
+    #                 'preferred_cuisine': preferred_cuisine
+    #             }
+    #
+    #             response = self.send_command(command,data)
+    #             print(response['message'])
+    #
+    #         elif command == 'add_notification':
+    #             data = str(input("Enter message to be sent as notification: "))
+    #             response = self.send_command('add_notification', data)
+    #             print(response['message'])
+    #
+    #         elif command == 'view_discard_menu':
+    #             response = self.send_command('view_discard_menu', {})
+    #
+    #             if response['status'] != 'success':
+    #                 print(response['message'])
+    #             else:
+    #                 discard_items = response['message']
+    #                 if not discard_items:
+    #                     print("No items to discard.")
+    #                     continue
+    #
+    #                 for item in discard_items:
+    #                     print(
+    #                         f"Item ID: {item['item_id']}, Item Name: {item['item_name']}")
+    #
+    #                 while True:
+    #                     print("\nOptions:")
+    #                     print("1. Remove a food item from the menu")
+    #                     print("2. Get detailed feedback on a food item")
+    #                     print("3. Exit")
+    #
+    #                     choice = input("Enter your choice: ").strip()
+    #
+    #                     if choice == '1':
+    #                         item_id = input("Enter the item ID to remove: ").strip()
+    #                         data = {'item_id': item_id}
+    #                         response = self.send_command('remove_food_item', data)
+    #                         print(response)
+    #
+    #
+    #                     elif choice == '2':
+    #                         item_id = input("Enter the item ID to get detailed feedback: ").strip()
+    #                         questions = []
+    #
+    #                         for i in range(3):
+    #                             question = input(f"Enter question {i + 1}: ")
+    #                             questions.append(question)
+    #
+    #                         data = {'item_id': item_id, 'questions': questions}
+    #                         response = self.send_command('get_detailed_feedback', data)
+    #                         print(response)
+    #
+    #                     elif choice == '3':
+    #                         break
+    #
+    #                     else:
+    #                         print("Invalid choice. Please try again.")
+    #
+    #         else:
+    #             print("Invalid command! Try Again.")
 
-            if command == 'exit':
+    def handle_chef_commands(self):
+        commands = [
+            "view_menu",
+            "view_recommendation",
+            "add_notification",
+            "voting_results",
+            "choose_final_menu",
+            "exit"
+        ]
+
+        while True:
+            print("\nChef commands:")
+            for i, command in enumerate(commands, 1):
+                print(f"{i}. {command.replace('_', ' ').capitalize()}")
+
+            command = input("Enter command number: ").strip()
+
+            if command == '6':
                 break
 
-            elif command == 'view_menu':
+            elif command == '1':
                 response = self.send_command('view_menu', {})
-                print("Current menu:", response)
-                for dish in response.get('dishes', []):
-                    print(dish)
+                # print("Current menu:\n", response)
+                print(f"\n{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
 
-            elif command == 'view_recommendation':
+            elif command == '2':
                 num_items = int(input("Enter number of items to recommend: ").strip())
                 response = self.send_command('view_recommendation', {'num_items': num_items})
                 print("Recommended dishes:")
-                for dish in response.get('dishes', []):
-                    print(dish)
+                print(f"\n{'ITEM_ID':<15} {'ITEM_NAME':<15} {'MEAL_TYPE':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['item_name']:<15} {data['meal_type']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
 
-            elif command == 'add_notification':
+            elif command == '3':
                 data = str(input("Enter message to be sent as notification: "))
                 response = self.send_command('add_notification', data)
                 print(response['message'])
 
-            elif command == 'voting_results':
+            elif command == '4':
                 response = self.send_command('voting_results', {})
-                # print("Voting results:", response)
-                for result in response.get('results', []):
-                    print(result)
+                print(f"\n{'ITEM_ID':<15} {'ITEM_NAME':<15} {'TOTAL_VOTES':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['item_name']:<15} {data['total_votes']:<15}")
+                # for result in response.get('results', []):
+                #     print(result)
 
-            elif command == 'choose_final_menu':
+            elif command == '5':
                 response = self.send_command('view_menu', {})
-                print("Current menu:", response)
-                for dish in response.get('dishes', []):
-                    print(dish)
-                item_ids = input("Enter item IDs for final menu (comma-separated): ")
+                print("\nCurrent menu:")
+                print(f"{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
+                item_ids = input("\nEnter item IDs for final menu (comma-separated): ")
                 item_ids = [int(item_id.strip()) for item_id in item_ids.split(',')]
                 response = self.send_command('choose_final_menu', {'item_ids': item_ids})
                 print(response['message'])
@@ -219,22 +412,98 @@ class Client:
             else:
                 print("Invalid command! Try Again.")
 
-    def handle_employee_commands(self):
-        while True:
-            print(
-                "Employee commands: view_menu, vote_item, provide_feedback,show_notification, send_detailed_feedback, update_my_profile, sort_next_day_menu, view_recommendation,exit")
-            command = input("Enter command: ").replace(" ", "_").lower()
+    # def handle_chef_commands(self):
+    #     while True:
+    #         print(
+    #             "Chef commands: view_menu, view_recommendation,add_notification, voting_results, choose_final_menu, exit")
+    #         command = input("Enter command: ").replace(" ", "_").lower()
+    #
+    #         if command == 'exit':
+    #             break
+    #
+    #         elif command == 'view_menu':
+    #             response = self.send_command('view_menu', {})
+    #             print("Current menu:", response)
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #
+    #         elif command == 'view_recommendation':
+    #             num_items = int(input("Enter number of items to recommend: ").strip())
+    #             response = self.send_command('view_recommendation', {'num_items': num_items})
+    #             print("Recommended dishes:")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #
+    #         elif command == 'add_notification':
+    #             data = str(input("Enter message to be sent as notification: "))
+    #             response = self.send_command('add_notification', data)
+    #             print(response['message'])
+    #
+    #         elif command == 'voting_results':
+    #             response = self.send_command('voting_results', {})
+    #             # print("Voting results:", response)
+    #             for result in response.get('results', []):
+    #                 print(result)
+    #
+    #         elif command == 'choose_final_menu':
+    #             response = self.send_command('view_menu', {})
+    #             print("Current menu:", response)
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #             item_ids = input("Enter item IDs for final menu (comma-separated): ")
+    #             item_ids = [int(item_id.strip()) for item_id in item_ids.split(',')]
+    #             response = self.send_command('choose_final_menu', {'item_ids': item_ids})
+    #             print(response['message'])
+    #
+    #         else:
+    #             print("Invalid command! Try Again.")
 
-            if command == 'exit':
+    def handle_employee_commands(self):
+        commands = [
+            "view_menu",
+            "vote_item",
+            "provide_feedback",
+            "show_notification",
+            "send_detailed_feedback",
+            "update_my_profile",
+            "sort_next_day_menu",
+            "view_recommendation",
+            "exit"
+        ]
+
+        while True:
+            print("Employee commands:")
+            for i, command in enumerate(commands, 1):
+                print(f"{i}. {command.replace('_', ' ').capitalize()}")
+
+            command = input("Enter command number: ").strip()
+
+            if command == '9':
                 break
 
-            elif command == 'view_menu':
+            elif command == '1':
                 response = self.send_command('view_menu', {})
-                print("Current menu:")
-                for dish in response.get('dishes', []):
-                    print(dish)
+                # print("Current menu:")
+                print(f"{'ITEM_ID':<15} {'MEAL_TYPE':<15} {'AVAILABILITY':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['meal_type']:<15} {data['availability']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
 
-            elif command == 'provide_feedback':
+            elif command == '2':
+                response = self.send_command('get_item_to_vote', {})
+                if response['status'] == 'error':
+                    print(response['message'])
+                    continue
+                print("Vote the items for today's menu: ")
+                print(response['message'])
+                item_id = int(input("Enter item ID to vote: "))
+                vote = input("Enter your vote: ")
+                data = {'item_id': item_id, 'vote': vote}
+                response = self.send_command('vote_item', data)
+                print(response['message'])
+
+            elif command == '3':
                 item_name = input("Enter item name: ")
                 qty = int(input("Enter quantity: "))
                 quality = int(input("Enter quality: "))
@@ -245,35 +514,18 @@ class Client:
                 response = self.send_command('provide_feedback', data)
                 print(response['message'])
 
-            elif command == 'vote_item':
-                response = self.send_command('get_item_to_vote', {})
-                if response['status'] == 'error':
-                    print(response['message'])
-                    continue
-                print("Vote the items for today's menu: ")
-                print(response['message'])
-                item_id = int(input("Enter item ID to vote: "))
-                vote = input("Enter your vote: ")
-                data = {'item_id': item_id, 'vote': vote}
-                response = self.send_command(command, data)
-                print(response['message'])
-
-            elif command == 'next_day_menu':
-                response = self.send_command('next_day_menu', {})
-                print("Next day's menu:")
-                for dish in response.get('dishes', []):
-                    print(dish)
-
-            elif command == 'show_notification':
-                user_name = str(input("Enter your username: ")).strip().lower()
+            elif command == '4':
+                user_name = input("Enter your username: ").strip().lower()
                 data = {'user_name': user_name}
                 response = self.send_command('show_notification', data)
-                print("Today's Notification:")
-                if response['message'] == []:
-                    response = {'message': "No notification today"}
-                print(response['message'])
+                print("Today's Notifications:")
+                if response['status'] == 'success' and response['message']:
+                    for notification in response['message']:
+                        print(notification['message'])
+                else:
+                    print("No new notifications today.")
 
-            elif command == 'send_detailed_feedback':
+            elif command == '5':
                 response = self.send_command('get_feedback_items', {})
                 print('Items available for detailed feedback:', response.get('items'))
                 item_id = int(input("Enter item ID to provide detailed feedback: "))
@@ -293,7 +545,7 @@ class Client:
                 response = self.send_command('update_detailed_feedback', data)
                 print(response['message'])
 
-            elif command == 'update_my_profile':
+            elif command == '6':
                 print("Please answer these questions to know your preferences")
                 user_id = int(input("Enter your user id: "))
                 preference = input("1) Please select one (Vegetarian/Non Vegetarian/Eggetarian): ").strip()
@@ -312,14 +564,7 @@ class Client:
                 response = self.send_command('update_my_profile', data)
                 print(response.get('message'))
 
-            elif command == 'view_recommendation':
-                num_items = int(input("Enter number of items to recommend: ").strip())
-                response = self.send_command('view_recommendation', {'num_items': num_items})
-                print("Recommended dishes:")
-                for dish in response.get('dishes', []):
-                    print(dish)
-
-            elif command == 'sort_next_day_menu':
+            elif command == '7':
                 user_id = int(input('Enter your user ID: '))
                 data = {'user_id': user_id}
                 response = self.send_command('sort_next_day_menu', data)
@@ -329,8 +574,145 @@ class Client:
                     print("Next day's menu:")
                     for dish in response.get('dishes', []):
                         print(dish)
+
+            elif command == '8':
+                num_items = int(input("Enter number of items to recommend: ").strip())
+                response = self.send_command('view_recommendation', {'num_items': num_items})
+                print("Recommended dishes:")
+                # data = response['dishes']
+                print(f"{'ID':<15} {'NAME':<15} {'MEAL_TYPE':<15}")
+                for data in response['dishes']:
+                    print(f"{data['item_id']:<15} {data['item_name']:<15} {data['meal_type']:<15}")
+                # for dish in response.get('dishes', []):
+                #     print(dish)
+
             else:
-                print("Command not found in client")
+                print("Invalid command! Try Again.")
+
+    # def handle_employee_commands(self):
+    #     while True:
+    #         print(
+    #             "Employee commands: view_menu, vote_item, provide_feedback,show_notification, send_detailed_feedback, update_my_profile, sort_next_day_menu, view_recommendation,exit")
+    #         command = input("Enter command: ").replace(" ", "_").lower()
+    #
+    #         if command == 'exit':
+    #             break
+    #
+    #         elif command == 'view_menu':
+    #             response = self.send_command('view_menu', {})
+    #             print("Current menu:")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #
+    #         elif command == 'provide_feedback':
+    #             item_name = input("Enter item name: ")
+    #             qty = int(input("Enter quantity: "))
+    #             quality = int(input("Enter quality: "))
+    #             vfm = int(input("Enter value for money (vfm): "))
+    #             comments = input("Enter comments: ")
+    #
+    #             data = {'item_name': item_name, 'qty': qty, 'quality': quality, 'vfm': vfm, 'comments': comments}
+    #             response = self.send_command('provide_feedback', data)
+    #             print(response['message'])
+    #
+    #         elif command == 'vote_item':
+    #             response = self.send_command('get_item_to_vote', {})
+    #             if response['status'] == 'error':
+    #                 print(response['message'])
+    #                 continue
+    #             print("Vote the items for today's menu: ")
+    #             print(response['message'])
+    #             item_id = int(input("Enter item ID to vote: "))
+    #             vote = input("Enter your vote: ")
+    #             data = {'item_id': item_id, 'vote': vote}
+    #             response = self.send_command(command, data)
+    #             print(response['message'])
+    #
+    #         elif command == 'next_day_menu':
+    #             response = self.send_command('next_day_menu', {})
+    #             print("Next day's menu:")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #
+    #         elif command == 'show_notification':
+    #             user_name = input("Enter your username: ").strip().lower()
+    #             data = {'user_name': user_name}
+    #             response = self.send_command('show_notification', data)
+    #             print(response)
+    #             print("Today's Notifications:")
+    #             if response['status'] == 'success' and response['message']:
+    #                 for notification in response['message']:
+    #                     print(notification['message'])
+    #             else:
+    #                 print("No new notifications today.")
+    #
+    #         # elif command == 'show_notification':
+    #         #     user_name = str(input("Enter your username: ")).strip().lower()
+    #         #     data = {'user_name': user_name}
+    #         #     response = self.send_command('show_notification', data)
+    #         #     print("Today's Notification:")
+    #         #     if response['message'] == []:
+    #         #         response = {'message': "No notification today"}
+    #         #     print(response['message'])
+    #
+    #         elif command == 'send_detailed_feedback':
+    #             response = self.send_command('get_feedback_items', {})
+    #             print('Items available for detailed feedback:', response.get('items'))
+    #             item_id = int(input("Enter item ID to provide detailed feedback: "))
+    #
+    #             response = self.send_command('get_feedback_questions', {'item_id': item_id})
+    #             if response['status'] != 'success':
+    #                 print(response)
+    #                 continue
+    #
+    #             questions = response.get('questions', [])
+    #             feedback = []
+    #             for question in questions:
+    #                 answer = input(f"Question: {question['question']}\nYour answer: ")
+    #                 feedback.append({'id': question['id'], 'answer': answer})
+    #
+    #             data = {'item_id': item_id, 'feedback': feedback}
+    #             response = self.send_command('update_detailed_feedback', data)
+    #             print(response['message'])
+    #
+    #         elif command == 'update_my_profile':
+    #             print("Please answer these questions to know your preferences")
+    #             user_id = int(input("Enter your user id: "))
+    #             preference = input("1) Please select one (Vegetarian/Non Vegetarian/Eggetarian): ").strip()
+    #             spice_level = input("2) Please select your spice level (High/Medium/Low): ").strip()
+    #             preferred_cuisine = input("3) What do you prefer most (North Indian/South Indian/Other): ").strip()
+    #             sweet_tooth = input("4) Do you have a sweet tooth (Yes/No): ").strip()
+    #
+    #             data = {
+    #                 'user_id': user_id,
+    #                 'preference': preference,
+    #                 'spice_level': spice_level,
+    #                 'preferred_cuisine': preferred_cuisine,
+    #                 'sweet_tooth': sweet_tooth
+    #             }
+    #
+    #             response = self.send_command('update_my_profile', data)
+    #             print(response.get('message'))
+    #
+    #         elif command == 'view_recommendation':
+    #             num_items = int(input("Enter number of items to recommend: ").strip())
+    #             response = self.send_command('view_recommendation', {'num_items': num_items})
+    #             print("Recommended dishes:")
+    #             for dish in response.get('dishes', []):
+    #                 print(dish)
+    #
+    #         elif command == 'sort_next_day_menu':
+    #             user_id = int(input('Enter your user ID: '))
+    #             data = {'user_id': user_id}
+    #             response = self.send_command('sort_next_day_menu', data)
+    #             if response['status'] == 'error':
+    #                 print(response['message'])
+    #             else:
+    #                 print("Next day's menu:")
+    #                 for dish in response.get('dishes', []):
+    #                     print(dish)
+    #         else:
+    #             print("Command not found in client")
 
     def run(self):
         self.connect()

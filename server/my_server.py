@@ -114,7 +114,7 @@ class Server:
     def run(self):
         while True:
             client_socket, addr = self.server_socket.accept()
-            print(f"Accepted connection from {addr}")
+            # print(f"Accepted connection from {addr}")
             client_handler_thread = threading.Thread(target=self.handle_client, args=(client_socket,))
             client_handler_thread.start()
 
